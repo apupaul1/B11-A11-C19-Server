@@ -18,8 +18,6 @@ const client = new MongoClient(uri, {
     deprecationErrors: true,
   },
 });
-// BookNest
-// qnpsgpNpetBKL2So
 
 async function run() {
   try {
@@ -31,7 +29,14 @@ async function run() {
     // books api
 
     app.get("/books", async (req, res) => {
-      const cursor = booksCollection.find();
+
+      const email = req.query.email;
+      const query = {};
+      if(email){
+        query.user_email = email; 
+      }
+
+      const cursor = booksCollection.find(query);
       const result = await cursor.toArray();
       res.send(result);
     });

@@ -29,11 +29,10 @@ async function run() {
     // books api
 
     app.get("/books", async (req, res) => {
-
       const email = req.query.email;
       const query = {};
-      if(email){
-        query.user_email = email; 
+      if (email) {
+        query.user_email = email;
       }
 
       const cursor = booksCollection.find(query);
@@ -45,17 +44,42 @@ async function run() {
 
     app.get("/books/:id", async (req, res) => {
       const id = req.params.id;
-      const query = {_id : new ObjectId(id) };
-      const result = await booksCollection.findOne(query)
-      res.send(result)
+      const query = { _id: new ObjectId(id) };
+      const result = await booksCollection.findOne(query);
+      res.send(result);
     });
 
     // Add book api
 
-    app.post('/books', async (req,res)=>{
+    app.post("/books", async (req, res) => {
       const newBook = req.body;
       const result = await booksCollection.insertOne(newBook);
       res.send(result);
+    });
+
+
+    // Create DELETE API 
+
+    app.delete('/books/:id', async (req,res)=>{
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await booksCollection.deleteOne(query);
+      res.send(result);
+    })
+
+
+    // Update Book API
+
+    app.put('/books/:id', async (req, res) =>{
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+      const updatedBook = req.body;
+      const updatedDoc = {
+        $set : updatedBook
+        };
+        const result = await booksCollection.updateOne(filter, updatedDoc, options);
+        res.send(result);
     })
 
     // Send a ping to confirm a successful connection

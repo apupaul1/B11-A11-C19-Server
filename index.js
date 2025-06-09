@@ -25,6 +25,7 @@ async function run() {
     await client.connect();
 
     const booksCollection = client.db("bookNest").collection("books");
+    const usersCollection = client.db("bookNest").collection("users");
 
     // books api
 
@@ -57,30 +58,54 @@ async function run() {
       res.send(result);
     });
 
+    // User API
 
-    // Create DELETE API 
+    app.post("/users", async (req, res) => {
+      const user = req.body;
+      const result = await usersCollection.insertOne(user);
+      res.send(result);
+    });
 
-    app.delete('/books/:id', async (req,res)=>{
+    // Create DELETE API
+
+    app.delete("/books/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await booksCollection.deleteOne(query);
       res.send(result);
-    })
-
+    });
 
     // Update Book API
 
-    app.put('/books/:id', async (req, res) =>{
+    app.put("/books/:id", async (req, res) => {
       const id = req.params.id;
       const filter = { _id: new ObjectId(id) };
       const options = { upsert: true };
       const updatedBook = req.body;
       const updatedDoc = {
-        $set : updatedBook
-        };
-        const result = await booksCollection.updateOne(filter, updatedDoc, options);
-        res.send(result);
-    })
+        $set: updatedBook,
+      };
+      const result = await booksCollection.updateOne(
+        filter,
+        updatedDoc,
+        options
+      );
+      res.send(result);
+    });
+
+    // Upvote Update PATCH API
+    app.patch("/books/:id", async (req, res) => {
+      const id = req.params.id;
+      const { upvote } = req.body; 
+      const filter = { _id: new ObjectId(id) };
+
+      const updatedDoc = {
+        $set: { upvote: upvote }, // set upvote to the new value
+      };
+
+      const result = await booksCollection.updateOne(filter, updatedDoc);
+      res.send(result);
+    });
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });

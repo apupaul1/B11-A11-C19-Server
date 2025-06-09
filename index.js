@@ -27,6 +27,19 @@ async function run() {
     const booksCollection = client.db("bookNest").collection("books");
     const usersCollection = client.db("bookNest").collection("users");
 
+    // Reading Status Update PATCH API
+
+    app.patch("/books/:id", async (req, res) => {
+      const id = req.params.id;
+      const { reading_status } = req.body;
+      const filter = { _id: new ObjectId(id) };
+      const updatedDoc = {
+        $set: { reading_status: reading_status },
+      };
+      const result = await booksCollection.updateOne(filter, updatedDoc);
+      res.send(result);
+    });
+
     // books api
 
     app.get("/books", async (req, res) => {
@@ -96,9 +109,8 @@ async function run() {
     // Upvote Update PATCH API
     app.patch("/books/:id", async (req, res) => {
       const id = req.params.id;
-      const { upvote } = req.body; 
+      const { upvote } = req.body;
       const filter = { _id: new ObjectId(id) };
-
       const updatedDoc = {
         $set: { upvote: upvote }, // set upvote to the new value
       };
